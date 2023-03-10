@@ -9,19 +9,19 @@ import imageio
 import cv2
 import os
 
+from config import model_config
 
-IMG_SIZE = 512
-BATCH_SIZE = 16
-EPOCHS = 1000
+IMG_SIZE = model_config['IMG_SIZE']
+BATCH_SIZE = model_config['BATCH_SIZE']
+EPOCHS = model_config['EPOCHS']
 
-MAX_SEQ_LENGTH = 30
-NUM_FEATURES = 2048
+MAX_SEQ_LENGTH = model_config['MAX_SEQ_LENGTH']
+NUM_FEATURES = model_config['NUM_FEATURES']
 
-import os
-import re
 
-train_path = r'C:\Users\User\Desktop\SCOOL\SCOOL\thesis\surfing_sessions_scoring\is_falling_videos\train'
-test_path = r'C:\Users\User\Desktop\SCOOL\SCOOL\thesis\surfing_sessions_scoring\is_falling_videos\test'
+
+train_path = r'datasets\videos\dynamic_camera\train'
+test_path = r'datasets\videos\dynamic_camera\test'
 
 train_directory = os.fsencode(train_path)
 test_directory = os.fsencode(test_path)
@@ -57,7 +57,7 @@ print(data['tag'].value_counts())
 
 test_data_from_folder = get_data(test_directory)
 
-msk = np.random.rand(len(data)) < 0.85
+msk = np.random.rand(len(data)) < model_config['TRAIN_SPLIT']
 
 train_df  = data[msk]
 train_df.reset_index(inplace=True)
@@ -103,9 +103,9 @@ def load_video(path, max_frames=0, resize=(IMG_SIZE, IMG_SIZE)):
 
 def build_feature_extractor():
     feature_extractor = keras.applications.InceptionV3(
-        weights="imagenet",
+        weights=model_config["feature_extractor_weights"],
         include_top=False,
-        pooling="avg",
+        pooling=model_config["pooling"],
         input_shape=(IMG_SIZE, IMG_SIZE, 3),
     )
     preprocess_input = keras.applications.inception_v3.preprocess_input
