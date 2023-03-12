@@ -14,9 +14,9 @@ model_config = {
 }
 
 
-uti_config = {
+util_config = {
 
-    'detected_events_file': 'datasets\events_ranges\dpredicted_ranges.pkl',
+    'detected_events_file': 'datasets\events_ranges\predicted_ranges.pkl',
     'actual_events_file': 'datasets\events_ranges\dynamic_camera_actual_dict.pkl',
     'export_dir': r'datasets\videos\dynamic_camera'
 
