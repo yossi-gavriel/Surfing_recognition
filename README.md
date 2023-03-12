@@ -42,3 +42,16 @@ To perform a snap, find a steep wave and perform your best bottom turn. Use the 
 360:
 For a carving 360, you'll approach a 45-degree angle wave. Keep your speed and drive your board toward the wave's lip. Turn your board against the whitewater as you rotate, transferring your weight to your front foot. This move involves fully rotating while on the face of the wave.
 
+Plan: 
+
+Using the previous project: 
+
+1. Create file with the events ranges for each surfing video:
+
+	a. Run the surfing event's detection and create pickle file with the ranges. 
+	b. Combine the actual ranges. 
+
+
+2. Create direcory for each excercise.
+
+3. Export every detected excercise as video.
