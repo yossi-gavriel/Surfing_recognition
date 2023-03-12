@@ -1,6 +1,7 @@
 import os
 import pickle
 import sys
+from collections import defaultdict
 
 from config import util_config
 
@@ -27,16 +28,27 @@ def merge_ranges_files(actual_ranges_file, predicted_ranges_file):
             video_name = predicted_range_key
             all_ranges[video_name] = predicted_range_val
         else:
-            print('here')
             count += 1
     return all_ranges
 
+def analyze_all_ranges(all_ranges):
+
+    analysis = defaultdict(list)
+    for key, vals in all_ranges.items():
+
+        for val, val_list in vals.items():
+
+            if val in util_config['exercises_list']:
+                analysis[val].extend(val_list)
+
+    print([(val, len(lst)) for val, lst in analysis.items()])
 
 def main():
 
     cwd = os.getcwd()
     sys.path.insert(0, cwd)
     all_ranges = merge_ranges_files(os.path.join(cwd, util_config['detected_events_file']), os.path.join(cwd, util_config['actual_events_file']))
+    analyze_all_ranges(all_ranges)
     print(len(all_ranges))
 
 

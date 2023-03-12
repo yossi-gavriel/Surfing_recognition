@@ -18,6 +18,7 @@ util_config = {
 
     'detected_events_file': 'datasets\events_ranges\predicted_ranges.pkl',
     'actual_events_file': 'datasets\events_ranges\dynamic_camera_actual_dict.pkl',
-    'export_dir': r'datasets\videos\dynamic_camera'
+    'export_dir': r'datasets\videos\dynamic_camera',
+    'exercises_list': ['left', 'right', 'up', 'pipes', 'pipes2', 'excercises']
 
 }
