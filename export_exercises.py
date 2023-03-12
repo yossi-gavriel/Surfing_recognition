@@ -78,11 +78,11 @@ def export_all_ranges(all_ranges, export_dir, fps=50):
 
                     out = cv2.VideoWriter(output_file, cv2.VideoWriter_fourcc(*'DIVX'), fps, (frame_width, frame_height))
                     current_frame = 0
-                    while current_frame < ex_end + 5:
+                    while current_frame < ex_end:
 
                         current_frame += 1
                         ret, frame = video.read()
-                        if current_frame > ex_start - 5:
+                        if current_frame > ex_start:
                             out.write(frame)
 
                     out.release()

@@ -42,7 +42,18 @@ To perform a snap, find a steep wave and perform your best bottom turn. Use the 
 360:
 For a carving 360, you'll approach a 45-degree angle wave. Keep your speed and drive your board toward the wave's lip. Turn your board against the whitewater as you rotate, transferring your weight to your front foot. This move involves fully rotating while on the face of the wave.
 
+
+
 Plan: 
+
+Section 1:
+
+1. Cut video sessions from dedicated surfing pools
+2. Use object detection model that trained dedicated pools 
+3. Run surfing events detection on the videos with the model from 2
+
+
+Section 2:
 
 Using the previous project: 
 
@@ -55,3 +66,16 @@ Using the previous project:
 2. Create direcory for each excercise.
 
 3. Export every detected excercise as video.
+
+4. Clean the dataset created by 3
+
+5. Run video classification training + inference
+
+6. Create surfing events detection: 
+	
+	Run surfing events detection on the videos 
+	For each detected event:
+		Use the model on the detected frames range to get the action classification
+		Export the results to pickle file
+		
+7. Run evaluation on the predicted ranges. 
