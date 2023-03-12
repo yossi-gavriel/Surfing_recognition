@@ -8,4 +8,16 @@ model_config = {
 'NUM_FEATURES' : 2048,
 'TRAIN_SPLIT': 0.85,
 'feature_extractor_weights': 'imagenet',
-'pooling': 'avg'}
+'pooling': 'avg',
+'train_path' : r'datasets\videos\dynamic_camera\train',
+'test_path' : r'datasets\videos\dynamic_camera\train'
+}
+
+
+uti_config = {
+
+    'detected_events_file': 'datasets\events_ranges\dpredicted_ranges.pkl',
+    'actual_events_file': 'datasets\events_ranges\dynamic_camera_actual_dict.pkl',
+    'export_dir': r'datasets\videos\dynamic_camera'
+
+}

@@ -1,30 +1,15 @@
-from tensorflow_docs.vis import embed
 from tensorflow import keras
-from imutils import paths
-import matplotlib.pyplot as plt
 import tensorflow as tf
 import pandas as pd
 import numpy as np
-import imageio
 import cv2
 import os
-
 from config import model_config
 
-IMG_SIZE = model_config['IMG_SIZE']
-BATCH_SIZE = model_config['BATCH_SIZE']
-EPOCHS = model_config['EPOCHS']
-
-MAX_SEQ_LENGTH = model_config['MAX_SEQ_LENGTH']
-NUM_FEATURES = model_config['NUM_FEATURES']
 
 
-
-train_path = r'datasets\videos\dynamic_camera\train'
-test_path = r'datasets\videos\dynamic_camera\test'
-
-train_directory = os.fsencode(train_path)
-test_directory = os.fsencode(test_path)
+train_directory = os.fsencode(model_config['train_path'])
+test_directory = os.fsencode(model_config['test_path'])
 
 def get_data(directory):
 
@@ -81,7 +66,7 @@ def crop_center_square(frame):
     return frame[start_y : start_y + min_dim, start_x : start_x + min_dim]
 
 
-def load_video(path, max_frames=0, resize=(IMG_SIZE, IMG_SIZE)):
+def load_video(path, max_frames=0, resize=(model_config['IMG_SIZE'], model_config['IMG_SIZE'])):
     cap = cv2.VideoCapture(path)
     frames = []
     try:
@@ -106,11 +91,11 @@ def build_feature_extractor():
         weights=model_config["feature_extractor_weights"],
         include_top=False,
         pooling=model_config["pooling"],
-        input_shape=(IMG_SIZE, IMG_SIZE, 3),
+        input_shape=(model_config['IMG_SIZE'], model_config['IMG_SIZE'], 3),
     )
     preprocess_input = keras.applications.inception_v3.preprocess_input
 
-    inputs = keras.Input((IMG_SIZE, IMG_SIZE, 3))
+    inputs = keras.Input((model_config['IMG_SIZE'], model_config['IMG_SIZE'], 3))
     preprocessed = preprocess_input(inputs)
 
     outputs = feature_extractor(preprocessed)
@@ -134,27 +119,27 @@ def prepare_all_videos(df, root_dir):
     # `frame_masks` and `frame_features` are what we will feed to our sequence model.
     # `frame_masks` will contain a bunch of booleans denoting if a timestep is
     # masked with padding or not.
-    frame_masks = np.zeros(shape=(num_samples, MAX_SEQ_LENGTH), dtype="bool")
+    frame_masks = np.zeros(shape=(num_samples, model_config['MAX_SEQ_LENGTH']), dtype="bool")
     frame_features = np.zeros(
-        shape=(num_samples, MAX_SEQ_LENGTH, NUM_FEATURES), dtype="float32"
+        shape=(num_samples, model_config['MAX_SEQ_LENGTH'], model_config['NUM_FEATURES']), dtype="float32"
     )
 
     # For each video.
     for idx, path in enumerate(video_paths):
         # Gather all its frames and add a batch dimension.
-        frames = load_video(os.path.join(train_path, path))
+        frames = load_video(os.path.join(model_config['train_path'], path))
         frames = frames[None, ...]
 
         # Initialize placeholders to store the masks and features of the current video.
-        temp_frame_mask = np.zeros(shape=(1, MAX_SEQ_LENGTH,), dtype="bool")
+        temp_frame_mask = np.zeros(shape=(1, model_config['MAX_SEQ_LENGTH'],), dtype="bool")
         temp_frame_features = np.zeros(
-            shape=(1, MAX_SEQ_LENGTH, NUM_FEATURES), dtype="float32"
+            shape=(1, model_config['MAX_SEQ_LENGTH'], model_config['NUM_FEATURES']), dtype="float32"
         )
 
         # Extract features from the frames of the current video.
         for i, batch in enumerate(frames):
             video_length = batch.shape[0]
-            length = min(MAX_SEQ_LENGTH, video_length)
+            length = min(model_config['MAX_SEQ_LENGTH'], video_length)
             for j in range(length):
                 temp_frame_features[i, j, :] = feature_extractor.predict(
                     batch[None, j, :]
@@ -177,8 +162,8 @@ print(f"Frame masks in train set: {train_data[1].shape}")
 def get_sequence_model():
     class_vocab = label_processor.get_vocabulary()
 
-    frame_features_input = keras.Input((MAX_SEQ_LENGTH, NUM_FEATURES))
-    mask_input = keras.Input((MAX_SEQ_LENGTH,), dtype="bool")
+    frame_features_input = keras.Input((model_config['MAX_SEQ_LENGTH'], model_config['NUM_FEATURES']))
+    mask_input = keras.Input((model_config['MAX_SEQ_LENGTH'],), dtype="bool")
 
     # Refer to the following tutorial to understand the significance of using `mask`:
     # https://keras.io/api/layers/recurrent_layers/gru/
@@ -217,7 +202,7 @@ def run_experiment():
         [train_data[0], train_data[1]],
         train_labels,
         validation_split=0.15,
-        epochs=EPOCHS,
+        epochs=model_config['EPOCHS'],
         callbacks=[checkpoint],
     )
 
@@ -233,12 +218,12 @@ _, sequence_model = run_experiment()
 
 def prepare_single_video(frames):
     frames = frames[None, ...]
-    frame_mask = np.zeros(shape=(1, MAX_SEQ_LENGTH,), dtype="bool")
-    frame_features = np.zeros(shape=(1, MAX_SEQ_LENGTH, NUM_FEATURES), dtype="float32")
+    frame_mask = np.zeros(shape=(1, model_config['MAX_SEQ_LENGTH'],), dtype="bool")
+    frame_features = np.zeros(shape=(1, model_config['MAX_SEQ_LENGTH'], model_config['NUM_FEATURES']), dtype="float32")
 
     for i, batch in enumerate(frames):
         video_length = batch.shape[0]
-        length = min(MAX_SEQ_LENGTH, video_length)
+        length = min(model_config['MAX_SEQ_LENGTH'], video_length)
         for j in range(length):
             frame_features[i, j, :] = feature_extractor.predict(batch[None, j, :])
         frame_mask[i, :length] = 1  # 1 = not masked, 0 = masked
@@ -249,7 +234,7 @@ def prepare_single_video(frames):
 def sequence_prediction(path):
     class_vocab = label_processor.get_vocabulary()
 
-    frames = load_video(os.path.join(test_path, path))
+    frames = load_video(os.path.join(model_config['test_path'], path))
     frame_features, frame_mask = prepare_single_video(frames)
     probabilities = sequence_model.predict([frame_features, frame_mask])[0]
 
