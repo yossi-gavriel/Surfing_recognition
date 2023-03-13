@@ -47,6 +47,8 @@ def analyze_all_ranges(all_ranges):
 
 def init_dirs(dir_path, dirs_list):
 
+    if not os.path.exists(dir_path):
+        os.mkdir(dir_path)
     for new_dir_name in dirs_list:
         out_dir = os.path.join(dir_path, new_dir_name)
         if os.path.exists(out_dir):
@@ -54,14 +56,14 @@ def init_dirs(dir_path, dirs_list):
         os.mkdir(out_dir)
 
 
-def export_all_ranges(all_ranges, export_dir, fps=50):
+def export_all_ranges(cwd, all_ranges, export_dir, fps=50):
 
-    init_dirs(export_dir, util_config['exercises_list'])
+    init_dirs(os.path.join(cwd, export_dir), util_config['exercises_list'])
     analysis = defaultdict(list)
     new_events_counts = {key:0 for key in util_config['exercises_list']}
 
     for video_name, video_vals in all_ranges.items():
-
+        video_name = video_name.split('/')[-1]
         video_path = os.path.join(util_config['videos_location'], video_name)
         for key, key_list in video_vals.items():
 
@@ -98,9 +100,11 @@ def main():
 
     cwd = os.getcwd()
     sys.path.insert(0, cwd)
-    all_ranges = merge_ranges_files(os.path.join(cwd, util_config['detected_events_file']), os.path.join(cwd, util_config['actual_events_file']))
+    with open(util_config['detected_events_file'], 'rb') as f:
+        all_ranges = pickle.load(f)
+    #all_ranges = merge_ranges_files(os.path.join(cwd, util_config['detected_events_file']), os.path.join(cwd, util_config['actual_events_file']))
     analyze_all_ranges(all_ranges)
-    export_all_ranges(all_ranges, util_config['export_dir'])
+    export_all_ranges(cwd, all_ranges, util_config['export_dir'])
 
 
 if __name__ == '__main__':
