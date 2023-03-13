@@ -79,3 +79,16 @@ Using the previous project:
 		Export the results to pickle file
 		
 7. Run evaluation on the predicted ranges. 
+
+
+Start to detect:
+
+	1. Change direction from left to right - from buttom to top
+	2. Change direction from left to right - from top to buttom  
+	3. Change direction from right to left - from buttom to top
+	4. Change direction from right to left - from top to buttom 
+	5. Jump
+	6. Flip
+	7. Jump + Flip
+	8. Flip surfboard
+	
