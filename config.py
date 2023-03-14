@@ -18,8 +18,74 @@ util_config = {
 
     'detected_events_file': 'datasets\events_ranges\predicted_ranges.pkl',
     'actual_events_file': 'datasets\events_ranges\dynamic_camera_actual_dict.pkl',
-    'export_dir': r'datasets\videos\dynamic_camera',
-    'exercises_list': ['left', 'right', 'up', 'pipes', 'pipes2', 'excercises'],
-    'videos_location': r'C:\Users\User\Desktop\SCOOL\SCOOL\thesis\data-sets\videos\dynamic_camera'
+    'export_dir': r'datasets\videos\dedicated_pools',
+    'exercises_list2': ['box_shape'],
+    'exercises_list': ['left', 'right', 'up', 'pipes', 'pipes2', 'excercises', 'box_shape'],
+    'videos_location': r'C:\Users\User\Desktop\SCOOL\SCOOL\thesis\data-sets\videos\dedicated_pools'
+
+}
+
+surfing_analysis_config = {
+    'camera_setup' : 'dedicated_pools',
+    'to_export_video': True,
+    'surfer_direction_left_or_right_threshold': 0.5,
+    'white_level_threshold': 0.75,
+    'is_fall_frames_window': 50,
+    'surfer_above_wave_threshold': 20,
+    'exercise_frames_window': 10,
+    'pipe_frames_window': 10,
+    'direction_threshold': 5,
+    'direction_window': 15,
+    'starting_direction_frame_count':10,
+    'range_dist_threshold_direction_analysis': 50,
+    'range_length_threshold_direction_analysis': 15,
+    'smooth_tr_direction_analysis': 10,
+    'window_threshold_direction_analysis': 30,
+    'right_percent_threshold': 0.3,
+    'left_percent_threshold': 0.3,
+    'sleep_time': 100,
+    'gc_files_threshold': 30,
+    'check_is_fall_frame': 15
+}
+
+surfer_direction_config = {
+
+    'img_size': (64, 64),
+    'batch_size': 10,
+
+    'pretrained_model_dropout': 0.5,
+    'pretrained_model_before_last_layer_size': 2048,
+    'pretrained_model_before_last_layer_activation': "relu",
+    'pretrained_model_last_layer_activation': "sigmoid",
+
+    'cnn_model_1_first_layer_size': 8,
+    'cnn_model_1_first_kernel_size': (3, 3),
+    'cnn_model_1_first_layer_activation': "relu",
+    'cnn_model_1_first_polling': (2, 2),
+    'cnn_model_1_first_dropout': 0.25,
+    'cnn_model_1_second_layer_size': 4,
+    'cnn_model_1_second_kernel_size': (3, 3),
+    'cnn_model_1_second_layer_activation': "relu",
+    'cnn_model_1_second_polling': (2, 2),
+    'cnn_model_1_second_dropout': 0.25,
+    'cnn_model_1_third_layer_size': 4,
+    'cnn_model_1_third_layer_activation': "relu",
+    'cnn_model_1_last_layer_activation': "sigmoid",
+
+    'cnn_model_2_first_layer_size': 4,
+    'cnn_model_2_first_kernel_size': (3, 3),
+    'cnn_model_2_first_layer_activation': "relu",
+    'cnn_model_2_first_dropout': 0.4,
+    'cnn_model_2_second_layer_size': 2,
+    'cnn_model_2_second_kernel_size': (2, 2),
+    'cnn_model_2_second_layer_activation': "relu",
+    'cnn_model_2_last_layer_activation': "sigmoid",
+
+    'learning_rate': 0.001,
+    'decay': 1e-3,
+    'loss': 'binary_crossentropy',
+    'epochs': 10,
+    'steps_per_epoch': 20,
+
 
 }
