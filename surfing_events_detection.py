@@ -56,7 +56,7 @@ labels = ['wave', 'surfer']
 object_detection_model_path = os.path.join(root_directory, f'trained_models/{camera_setup}_object_detection.pth')
 object_direction_model_path = os.path.join(root_directory, 'trained_models/direction_model.h5')
 
-videos_source_path = os.path.join(root_directory, f'datasets/videos/{camera_setup}')
+videos_source_path = os.path.join(root_directory, f'datasets/videos_to_analyze/{camera_setup}')
 videos_res_path = os.path.join(root_directory, f'results/surfing_analysis/{camera_setup}/videos')
 predicted_ranges_dir_path = os.path.join(root_directory, f'results/surfing_analysis/{camera_setup}/predicted_ranges')
 predicted_ranges_path = os.path.join(predicted_ranges_dir_path, 'predicted_ranges.pkl')

@@ -16,7 +16,7 @@ model_config = {
 
 util_config = {
 
-    'detected_events_file': 'datasets\events_ranges\predicted_ranges.pkl',
+    'detected_events_file': 'results\surfing_analysis\{surfing_analysis_config["camera_setup"]}\predicted_ranges\predicted_ranges.pkl',
     'actual_events_file': 'datasets\events_ranges\dynamic_camera_actual_dict.pkl',
     'export_dir': r'datasets\videos\dedicated_pools',
     'exercises_list2': ['box_shape'],
@@ -50,42 +50,6 @@ surfing_analysis_config = {
 
 surfer_direction_config = {
 
-    'img_size': (64, 64),
-    'batch_size': 10,
-
-    'pretrained_model_dropout': 0.5,
-    'pretrained_model_before_last_layer_size': 2048,
-    'pretrained_model_before_last_layer_activation': "relu",
-    'pretrained_model_last_layer_activation': "sigmoid",
-
-    'cnn_model_1_first_layer_size': 8,
-    'cnn_model_1_first_kernel_size': (3, 3),
-    'cnn_model_1_first_layer_activation': "relu",
-    'cnn_model_1_first_polling': (2, 2),
-    'cnn_model_1_first_dropout': 0.25,
-    'cnn_model_1_second_layer_size': 4,
-    'cnn_model_1_second_kernel_size': (3, 3),
-    'cnn_model_1_second_layer_activation': "relu",
-    'cnn_model_1_second_polling': (2, 2),
-    'cnn_model_1_second_dropout': 0.25,
-    'cnn_model_1_third_layer_size': 4,
-    'cnn_model_1_third_layer_activation': "relu",
-    'cnn_model_1_last_layer_activation': "sigmoid",
-
-    'cnn_model_2_first_layer_size': 4,
-    'cnn_model_2_first_kernel_size': (3, 3),
-    'cnn_model_2_first_layer_activation': "relu",
-    'cnn_model_2_first_dropout': 0.4,
-    'cnn_model_2_second_layer_size': 2,
-    'cnn_model_2_second_kernel_size': (2, 2),
-    'cnn_model_2_second_layer_activation': "relu",
-    'cnn_model_2_last_layer_activation': "sigmoid",
-
-    'learning_rate': 0.001,
-    'decay': 1e-3,
-    'loss': 'binary_crossentropy',
-    'epochs': 10,
-    'steps_per_epoch': 20,
-
+    'img_size': (64, 64)
 
 }

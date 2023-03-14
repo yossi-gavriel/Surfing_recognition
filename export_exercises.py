@@ -96,7 +96,7 @@ def export_all_ranges(cwd, all_ranges, export_dir, fps=50):
 
     print([(val, len(lst)) for val, lst in analysis.items()])
 
-def main():
+def export():
 
     cwd = os.getcwd()
     sys.path.insert(0, cwd)
@@ -108,4 +108,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    export()
