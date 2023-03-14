@@ -68,18 +68,17 @@ def export_all_ranges(cwd, all_ranges, export_dir, fps=50):
         for key, key_list in video_vals.items():
 
             if key in util_config['exercises_list']:
-
+                # read video
+                video = cv2.VideoCapture(video_path)
+                frame_width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
+                frame_height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
+                current_frame = 0
                 for ex_start, ex_end in key_list:
-                    # read video
-                    video = cv2.VideoCapture(video_path)
-                    frame_width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
-                    frame_height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-                    #
                     output_file = os.path.join(util_config['export_dir'], key, str(new_events_counts[key])+ video_name)
 
                     out = cv2.VideoWriter(output_file, cv2.VideoWriter_fourcc(*'DIVX'), fps, (frame_width, frame_height))
-                    current_frame = 0
+
                     while current_frame < ex_end:
 
                         current_frame += 1
@@ -88,9 +87,11 @@ def export_all_ranges(cwd, all_ranges, export_dir, fps=50):
                             out.write(frame)
 
                     out.release()
-                    video.release()
+
                     new_events_counts[key] += 1
                     print('done: ', output_file)
+
+                video.release()
 
 
 

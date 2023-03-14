@@ -13,18 +13,6 @@ model_config = {
 'test_path' : r'datasets\videos\dynamic_camera\train'
 }
 
-
-util_config = {
-
-    'detected_events_file': 'results\surfing_analysis\{surfing_analysis_config["camera_setup"]}\predicted_ranges\predicted_ranges.pkl',
-    'actual_events_file': 'datasets\events_ranges\dynamic_camera_actual_dict.pkl',
-    'export_dir': r'datasets\videos\dedicated_pools',
-    'exercises_list2': ['box_shape'],
-    'exercises_list': ['left', 'right', 'up', 'pipes', 'pipes2', 'excercises', 'box_shape'],
-    'videos_location': r'C:\Users\User\Desktop\SCOOL\SCOOL\thesis\data-sets\videos\dedicated_pools'
-
-}
-
 surfing_analysis_config = {
     'camera_setup' : 'dedicated_pools',
     'to_export_video': True,
@@ -47,6 +35,19 @@ surfing_analysis_config = {
     'gc_files_threshold': 30,
     'check_is_fall_frame': 15
 }
+
+
+util_config = {
+
+    'detected_events_file': f'results\surfing_analysis\{surfing_analysis_config["camera_setup"]}\predicted_ranges\predicted_ranges.pkl',
+    'actual_events_file': 'datasets\events_ranges\dynamic_camera_actual_dict.pkl',
+    'export_dir': r'datasets\videos\dedicated_pools',
+    'exercises_list2': ['box_shape'],
+    'exercises_list': ['left', 'right', 'up', 'pipes', 'pipes2', 'excercises', 'box_shape'],
+    'videos_location': r'C:\Users\User\Desktop\SCOOL\Surfing_recognition\datasets\videos_to_analyze\dedicated_pools'
+
+}
+
 
 surfer_direction_config = {
 
