@@ -154,31 +154,6 @@ def get_surfer_insied_wave(labels, boxes):
     return max_iou
 
 
-def put_analysis(frame, pipe=0, pipe2=0, up=0, down=0, left=0, right=0, normal_factor=0, exercise=0, excercise_size=0, surfer_box_shape_count=0, is_fall=False, frames='', direction = '', new_left=0, new_right=0, to_export_video=True, smooth_left=0, smooth_right=0, smooth_up=0, white_level=0):
-    """
-    Put the analysis details on the given frame 
-    """
-    surfing_analysis = f'up:{smooth_up}, left:{smooth_left}, right:{smooth_right}'
-    surfing_analysis2 = f'pipe:{pipe}, pipe2: {pipe2}, exercise: {exercise}'
-    surfing_analysis3 = f'body_direction:{direction}, frames:{frames}, is_fall:{is_fall}'
-    surfing_analysis4 = f'wave_size:{normal_factor}, white_level:{white_level}'
-    
-    if to_export_video:
-        
-        color = (255, 255, 255)
-        cv2.putText(frame, surfing_analysis, (int(len(frame)/2), int(len(frame)/8)-10),
-                    cv2.FONT_HERSHEY_SIMPLEX, 1, color, 3) 
-
-        cv2.putText(frame, surfing_analysis2, (int(len(frame)/2), int(len(frame)/7)),
-                    cv2.FONT_HERSHEY_SIMPLEX, 1, color, 3) 
-
-        cv2.putText(frame, surfing_analysis3, (int(len(frame)/2), int(len(frame)/6)),
-                cv2.FONT_HERSHEY_SIMPLEX, 1, color, 3) 
-
-        cv2.putText(frame, surfing_analysis4, (int(len(frame)/2), int(len(frame)/5)),
-                cv2.FONT_HERSHEY_SIMPLEX, 1, color, 3) 
-
-
 def put_analysis(frame, pipe=0, pipe2=0, up=0, down=0, left=0, right=0, normal_factor=0, exercise=0, excercise_size=0, surfer_box_shape_count=0, is_fall=False, frames='', direction = '', new_left=0, new_right=0, to_export_video=True, smooth_left=0, smooth_right=0, smooth_up=0, white_level=0, surfing_direction='', is_static_camera=False, height_width=0):
     """
     Put the analysis details on the given frame 
@@ -637,47 +612,6 @@ def is_pipe_func(surfer_seen, pipe_size, current_frame, last_pipe_frame, pipe_th
               
     return pipe_size, last_pipe_frame, pipes_lengths, pipes_lengths2, pipes_count, pipes_count2, current_pipe_start_frame
 
-def get_direction_analysis(direction, current_frame, direction1_obj, direction2_obj, turning_threshold, other_direction_count, other_direction_lengths):
-    """
-    Check if the surfer turning for the given direction during x frames 
-    """
-    if direction1_obj['start_frame'] == -1: # start new one
-
-        direction1_obj = {'start_frame': current_frame, 'last_frame': current_frame}
-
-    elif current_frame - direction1_obj['last_frame'] < direction_threshold: # update the end
-
-        direction1_obj['last_frame'] = current_frame
-
-    else: # start new one
-        direction1_obj = {'start_frame': current_frame, 'last_frame': current_frame}
-
-
-    # update only when we can't extand the list from previuos list
-    if direction2_obj['start_frame'] != -1 and current_frame - direction2_obj['last_frame'] > direction_threshold:
-
-        if direction2_obj['last_frame'] - direction2_obj['start_frame'] > direction_window: # count it
-            other_direction_count += 1
-            other_direction_lengths.append((direction2_obj['start_frame'], direction2_obj['last_frame']))
-
-        direction2_obj = {'start_frame': -1, 'last_frame': -1}
-            
-    return direction1_obj, direction2_obj, other_direction_count, other_direction_lengths
-
-
-def is_turning_func(direction, current_frame, turning_threshold, left_lengths, right_lengths, left_count, right_count, left_obj, right_obj):
-    """
-    Check if the surfer turning for sone direction during x frames 
-    """
-    if direction == 'left':
-        left_obj, right_obj, right_count, right_lengths =  get_direction_analysis(direction, current_frame, left_obj, right_obj, turning_threshold, right_count, right_lengths)
-    else:
-        right_obj, left_obj, left_count, left_lengths =  get_direction_analysis(direction, current_frame, right_obj, left_obj, turning_threshold, left_count, left_lengths)
-         
-    return left_obj, left_count, right_lengths, right_obj, right_count, left_lengths
-
-
-# In[9]:
 
 def surfer_perform_trick(surfer_xy, excercise_size, current_frame, last_ex_frame, ex_threshold, excercises_lengths, excercises_count, current_ex_start_frame):
     """
@@ -875,6 +809,9 @@ def detect_video(input_file, output_file, labels_names, fps=100, score_filter=0.
 
     surfer_xy = list()
     height_width = 0
+
+    wave_x = list()
+
     while True:
 
         current_frame += 1
@@ -944,6 +881,7 @@ def detect_video(input_file, output_file, labels_names, fps=100, score_filter=0.
                     id_wave = i
                     is_wave = True
                     xy_per_label[label].append((box[1], box[3]))
+                    wave_x.append((box[0], box[2]))
                     wave = True
                     wave_hight = abs(box[3] - box[1])
                     
