@@ -370,7 +370,7 @@ def predict_and_compare_with_labels(prev_res, current_res, next_ids, labels_name
     return current_ids, next_ids, (predicted_labels, predicted_boxes, predicted_scores)
 
 
-def get_direction_analysis_smooth(axis, current_frame_idx, xy_list, smooth_info, window_threshold=30, smooth_tr=10, range_length_threshold=15, range_dist_threshold=50, zero_threshold=7, body_directions_list=None, is_static_camera=False):
+def get_direction_analysis_smooth(axis, current_frame_idx, xy_list, smooth_info, window_threshold=30, smooth_tr=10, range_length_threshold=15, range_dist_threshold=50, zero_threshold=7, body_directions_list=None, is_static_camera=False, wave_x=(-1,-1)):
     """
     Calculate the surfing maneuvers direction 
     """
@@ -504,6 +504,152 @@ def get_direction_analysis_smooth(axis, current_frame_idx, xy_list, smooth_info,
 
     return smooth_info
 
+
+def get_direction_analysis_smooth(axis, current_frame_idx, xy_list, smooth_info, window_threshold=30, smooth_tr=10,
+                                  range_length_threshold=15, range_dist_threshold=50, zero_threshold=7,
+                                  body_directions_list=None, is_static_camera=False, wave_x=(-1, -1)):
+    """
+    Calculate the surfing maneuvers direction
+    """
+    current_val = xy_list[-1]
+    prev_val = xy_list[-2]
+
+    minus_label = 'left' if axis == 'x' else 'up'
+    plus_label = 'right' if axis == 'x' else 'down'
+
+    if prev_val == -1 or current_val == -1:
+        return smooth_info
+
+    directions_list = smooth_info[f'directions_list_{axis}_axis']
+    smooth_directions_list = smooth_info[f'smooth_directions_list_{axis}_axis']
+    total_smooth_left_ranges = smooth_info[f'total_smooth_{minus_label}_ranges']
+    total_smooth_right_ranges = smooth_info[f'total_smooth_{plus_label}_ranges']
+    current_smooth_left_start_idx = smooth_info[f'current_smooth_{minus_label}_start_idx']
+    current_smooth_right_start_idx = smooth_info[f'current_smooth_{plus_label}_start_idx']
+    current_smooth_zero_start_idx = smooth_info[f'current_smooth_zero_start_idx_{axis}_axis']
+    current_smooth_zero_start_idx_in_directions_list = smooth_info[
+        f'current_smooth_zero_start_idx_{axis}_axis_in_directions_list']
+
+    surfer_list_length = len(directions_list)
+
+    if current_val - prev_val > 0:  # extend the directions list
+        directions_list.append(1)
+    else:
+        directions_list.append(-1)
+
+    if surfer_list_length > window_threshold:  # verify that we will not get index error
+
+        if sum(directions_list[-window_threshold:]) > smooth_tr:  # extend the smooth directions list
+            smooth_directions_list.append(1)
+        elif sum(directions_list[-window_threshold:]) < -smooth_tr:
+            smooth_directions_list.append(-1)
+        else:
+            smooth_directions_list.append(0)
+    else:
+        smooth_info[f'directions_list_{axis}_axis'] = directions_list
+        smooth_info[f'smooth_directions_list_{axis}_axis'] = smooth_directions_list
+        return smooth_info
+
+    if len(smooth_directions_list) < 2:
+        smooth_info[f'directions_list_{axis}_axis'] = directions_list
+        smooth_info[f'smooth_directions_list_{axis}_axis'] = smooth_directions_list
+        return smooth_info
+
+    elif smooth_directions_list[-2] == 0:
+
+        if smooth_directions_list[-1] == 0:  # extending the zero's list
+            smooth_info[f'directions_list_{axis}_axis'] = directions_list
+            smooth_info[f'smooth_directions_list_{axis}_axis'] = smooth_directions_list
+
+            return smooth_info
+
+        elif current_frame_idx - current_smooth_zero_start_idx > zero_threshold:  # start new count and check if the last direction list is big anough to add the new range
+
+            if smooth_directions_list[current_smooth_zero_start_idx_in_directions_list - 1] == 1:
+
+                if current_smooth_zero_start_idx - current_smooth_right_start_idx > range_length_threshold:  # check frames condition
+
+                    if abs(xy_list[current_smooth_zero_start_idx] - xy_list[
+                        current_smooth_right_start_idx]) > range_dist_threshold:  # check distance condition
+
+                        if body_directions_list is not None and not is_static_camera:
+                            right_percent = body_directions_list[
+                                            current_smooth_right_start_idx:current_smooth_zero_start_idx].count(
+                                'right') / (current_smooth_zero_start_idx - current_smooth_right_start_idx)
+                            direction_condition = True if right_percent > right_percent_threshold else False
+                        else:
+                            direction_condition = True
+
+                        if direction_condition:
+                            total_smooth_right_ranges.append(
+                                (current_smooth_right_start_idx, current_smooth_zero_start_idx - 1))
+                            smooth_info[f'total_{plus_label}_count'] += 1
+                        else:
+                            pass  # there is no body position for that side
+                    else:
+
+                        pass  # not enogh distance to calculate as turning
+                else:
+
+                    pass  # not enogh frames to calculate as turning
+
+                current_smooth_right_start_idx = current_frame_idx
+
+            elif smooth_directions_list[current_smooth_zero_start_idx_in_directions_list - 1] == -1:
+
+                if current_smooth_zero_start_idx - current_smooth_left_start_idx > range_length_threshold:
+
+                    if abs(xy_list[current_smooth_zero_start_idx] - xy_list[
+                        current_smooth_left_start_idx]) > range_dist_threshold:
+
+                        if body_directions_list is not None and not is_static_camera:
+                            left_percent = body_directions_list[
+                                           current_smooth_left_start_idx:current_smooth_zero_start_idx].count(
+                                'left') / (current_smooth_zero_start_idx - current_smooth_left_start_idx)
+                            direction_condition = True if left_percent > left_percent_threshold else False
+                        else:
+                            direction_condition = True
+
+                        if direction_condition:
+
+                            total_smooth_left_ranges.append(
+                                (current_smooth_left_start_idx, current_smooth_zero_start_idx - 1))
+                            smooth_info[f'total_{minus_label}_count'] += 1
+                        else:
+                            pass  # there is no body position for that side
+                    else:
+
+                        pass  # not enogh distance to calculate as turning
+                else:
+                    pass
+
+                current_smooth_left_start_idx = current_frame_idx
+
+    elif smooth_directions_list[-1] == 0:
+
+        current_smooth_zero_start_idx = current_frame_idx
+        current_smooth_zero_start_idx_in_directions_list = len(smooth_directions_list) - 1
+
+    elif smooth_directions_list[-1] == -1 and current_smooth_left_start_idx == -1:
+        current_smooth_left_start_idx = current_frame_idx - window_threshold
+
+    elif smooth_directions_list[-1] == 1 and current_smooth_right_start_idx == -1:
+        current_smooth_right_start_idx = current_frame_idx - window_threshold
+
+    else:
+        pass
+
+    smooth_info[f'directions_list_{axis}_axis'] = directions_list
+    smooth_info[f'smooth_directions_list_{axis}_axis'] = smooth_directions_list
+    smooth_info[f'total_smooth_{minus_label}_ranges'] = total_smooth_left_ranges
+    smooth_info[f'total_smooth_{plus_label}_ranges'] = total_smooth_right_ranges
+    smooth_info[f'current_smooth_{minus_label}_start_idx'] = current_smooth_left_start_idx
+    smooth_info[f'current_smooth_{plus_label}_start_idx'] = current_smooth_right_start_idx
+    smooth_info[f'current_smooth_zero_start_idx_{axis}_axis'] = current_smooth_zero_start_idx
+    smooth_info[
+        f'current_smooth_zero_start_idx_{axis}_axis_in_directions_list'] = current_smooth_zero_start_idx_in_directions_list
+
+    return smooth_info
 
 def predict_direction(image_ar, direction_model):
     """
@@ -959,7 +1105,7 @@ def detect_video(input_file, output_file, labels_names, fps=100, score_filter=0.
 
             else:
                 
-                smooth_info = get_direction_analysis_smooth('x', current_frame, lst2, smooth_info, window_threshold=window_threshold_direction_analysis, smooth_tr=smooth_tr_direction_analysis, range_length_threshold=range_length_threshold_direction_analysis, range_dist_threshold=range_dist_threshold_direction_analysis, body_directions_list=body_directions_list, is_static_camera=is_static_camera)
+                smooth_info = get_direction_analysis_smooth('x', current_frame, lst2, smooth_info, window_threshold=window_threshold_direction_analysis, smooth_tr=smooth_tr_direction_analysis, range_length_threshold=range_length_threshold_direction_analysis, range_dist_threshold=range_dist_threshold_direction_analysis, body_directions_list=body_directions_list, is_static_camera=is_static_camera, wave_x=wave_x)
                 smooth_info = get_direction_analysis_smooth('y', current_frame, lst, smooth_info, window_threshold=window_threshold_direction_analysis, smooth_tr=smooth_tr_direction_analysis, range_length_threshold=range_length_threshold_direction_analysis, range_dist_threshold=range_dist_threshold_direction_analysis, is_static_camera=is_static_camera)
                 smooth_down = smooth_info['total_down_count']
                 smooth_up = smooth_info['total_up_count']
