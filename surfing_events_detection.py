@@ -720,6 +720,24 @@ def surfer_perform_trick(surfer_xy, excercise_size, current_frame, last_ex_frame
     return excercise_size, last_ex_frame, excercises_lengths, excercises_count, current_ex_start_frame, height - width
 
 
+def surfer_side_in_wave(wave_x1, wave_x2, surfer_x1, surfer_x2):
+    """
+    Check in which side of the wave the surfer located
+    :param wave_x1:
+    :param wave_x2:
+    :param surfer_x1:
+    :param surfer_x2:
+    :return:
+    """
+    wave_mid = wave_x1 + (wave_x2 - wave_x1)/2
+    surfer_mid = surfer_x1 + (surfer_x2 - surfer_x1)/2
+
+    if surfer_mid > wave_mid:
+        return 'left'
+    else:
+        return 'right'
+
+
 
 
 def detect_video(input_file, output_file, labels_names, fps=100, score_filter=0.6, count_pipe_threshold = 18, count_disapear_threshold=11, count_turning_threshold=10, ex_threshold=3, predictions_dict='', to_export_video=True, is_static_camera=False, detection_model=None, direction_model=None):
